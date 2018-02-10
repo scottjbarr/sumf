@@ -2,6 +2,14 @@
 
 Sum a list of numbers from stdin.
 
+It isn't even a library, just a simple little command line utility jammed
+into a main.
+
+
+## Installation
+
+    go get github.com/scottjbarr/sumf
+
 
 ## Usage
 
