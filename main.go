@@ -22,18 +22,22 @@ func main() {
 			break
 		}
 
-		// get rid of spaces
-		s := strings.TrimSpace(t)
-
-		// convert to a float, ignoring errors. If you want to pump text
-		// into this, that is your choice :)
-		f, _ := strconv.ParseFloat(s, 64)
-
-		sum += f
+		sum += parse(t)
 	}
 
 	// format the sum to least number sigificant digits
 	out := strconv.FormatFloat(sum, 'f', -1, 64)
 
 	fmt.Printf("%s\n", out)
+}
+
+func parse(s string) float64 {
+	// get rid of any leading/trailing spaces
+	v := strings.TrimSpace(s)
+
+	// convert to a float, ignoring errors. If you want to pump text
+	// into this thing, that is your choice :)
+	f, _ := strconv.ParseFloat(v, 64)
+
+	return f
 }
