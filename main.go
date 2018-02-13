@@ -3,26 +3,22 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"io"
 	"os"
 	"strconv"
-	"strings"
 )
 
 func main() {
 	sum := 0.0
 
 	reader := bufio.NewReader(os.Stdin)
+	scanner := bufio.NewScanner(reader)
 
-	for {
-		t, err := reader.ReadString(' ')
-		if err == io.EOF && len(t) == 0 {
-			// we've finished reading stdin when there is an EOF and no more
-			// values
-			break
-		}
+	scanner.Split(split)
 
-		sum += parse(t)
+	for scanner.Scan() {
+		tok := scanner.Bytes()
+		f, _ := strconv.ParseFloat(string(tok), 64)
+		sum += f
 	}
 
 	// format the sum to least number sigificant digits
@@ -31,13 +27,41 @@ func main() {
 	fmt.Printf("%s\n", out)
 }
 
-func parse(s string) float64 {
-	// get rid of any leading/trailing spaces
-	v := strings.TrimSpace(s)
+func split(data []byte, atEOF bool) (advance int, token []byte, err error) {
+	if len(data) == 0 {
+		return
+	}
 
-	// convert to a float, ignoring errors. If you want to pump text
-	// into this thing, that is your choice :)
-	f, _ := strconv.ParseFloat(v, 64)
+	switch data[0] {
+	case ' ', '\n', '\r', '\t':
+		advance, token, err = parseWhitespace(data)
 
-	return f
+	default:
+		advance, token, err = parseToken(data)
+	}
+	return
+}
+
+func parseToken(data []byte) (int, []byte, error) {
+	var accum []byte
+	for i, b := range data {
+		if b == ' ' || b == '\n' || b == '\t' || b == '\r' {
+			return i, accum, nil
+		} else {
+			accum = append(accum, b)
+		}
+	}
+	return 0, nil, nil
+}
+
+func parseWhitespace(data []byte) (int, []byte, error) {
+	var accum []byte
+	for i, b := range data {
+		if b == ' ' || b == '\n' || b == '\t' || b == '\r' {
+			accum = append(accum, b)
+		} else {
+			return i, accum, nil
+		}
+	}
+	return 0, nil, nil
 }
