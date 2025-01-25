@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
 	"os"
 	"strconv"
@@ -17,7 +18,21 @@ func main() {
 
 	for scanner.Scan() {
 		tok := scanner.Bytes()
-		f, _ := strconv.ParseFloat(string(tok), 64)
+
+		// strip spaces, newlines and returns
+		tok = bytes.Trim(tok, " \n\r")
+
+		if len(tok) == 0 {
+			// skip empty line
+			continue
+		}
+
+		f, err := strconv.ParseFloat(string(tok), 64)
+		if err != nil {
+			fmt.Printf("err = %v\n", err)
+			continue
+		}
+
 		sum += f
 	}
 
@@ -39,11 +54,13 @@ func split(data []byte, atEOF bool) (advance int, token []byte, err error) {
 	default:
 		advance, token, err = parseToken(data)
 	}
+
 	return
 }
 
 func parseToken(data []byte) (int, []byte, error) {
 	var accum []byte
+
 	for i, b := range data {
 		if b == ' ' || b == '\n' || b == '\t' || b == '\r' {
 			return i, accum, nil
@@ -51,11 +68,13 @@ func parseToken(data []byte) (int, []byte, error) {
 			accum = append(accum, b)
 		}
 	}
+
 	return 0, nil, nil
 }
 
 func parseWhitespace(data []byte) (int, []byte, error) {
 	var accum []byte
+
 	for i, b := range data {
 		if b == ' ' || b == '\n' || b == '\t' || b == '\r' {
 			accum = append(accum, b)
@@ -63,5 +82,6 @@ func parseWhitespace(data []byte) (int, []byte, error) {
 			return i, accum, nil
 		}
 	}
+
 	return 0, nil, nil
 }
